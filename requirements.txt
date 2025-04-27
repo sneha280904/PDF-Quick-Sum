@@ -1,0 +1,33 @@
+#  pip install -r requirements.txt 
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+# Set-ExecutionPolicy Unrestricted -Scope Process 
+# python.exe -m pip install --upgrade pip
+
+# & "D:\Coding\PyEnv\.venv\Scripts\Activate.ps1"
+
+# python -c "import sys; print(sys.version)"
+# python -c "import sys; print(sys.executable)"
+# C:\Users\ASUS\AppData\Local\Programs\Python\Python312\python.exe -m venv --upgrade D:\Coding\PyEnv\.venv
+
+# pip install transformers datasets peft accelerate bitsandbytes torch
+
+# python -m spacy download en_core_web_sm
+
+
+
+langchain
+streamlit
+google-generativeai
+
+openai
+
+
+
+# pip list
+# deactivate  # Exit if the venv is active
+# Remove-Item -Recurse -Force D:\Coding\PyEnv\.venv  # Delete old venv
+# C:\Users\ASUS\AppData\Local\Programs\Python\Python312\python.exe -m venv D:\Coding\PyEnv\.venv  # update the path
+# D:\Coding\PyEnv\.venv\Scripts\Activate    # activate new venv
+# python test.py
+# pip install ipykernel
+# python --version
