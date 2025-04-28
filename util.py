@@ -1,75 +1,85 @@
+###  <---------- Imports ---------->
+import openai
+from openai import OpenAIError, RateLimitError
+
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain import FAISS
 from langchain.chains.question_answering import load_qa_chain
-from langchain.llms import OpenAI
-from langchain.chat_models import ChatOpenAI
-from langchain.callbacks import get_openai_callback
+from langchain_openai import ChatOpenAI
+from langchain_community.vectorstores import FAISS
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from pypdf import PdfReader
 
+###  <---------- Function: Process Text ---------->
 def process_text(text):
-    # process the given text splitting it into chunks and converting
-    # these chunks into embeddings to form a knowledge BaseException
-    # Initialize a text splitter to divide the text into manageable chunks
+    """
+    Splits the input text into manageable chunks, generates embeddings,
+    and creates a FAISS knowledge base.
+    """
+    # Initialize a text splitter
     text_splitter = CharacterTextSplitter(
-        separator = "\n",
-        chunk_size = 1000,
-        chunk_overlap = 200,
-        length_function = len
+        separator="\n",
+        chunk_size=1000,
+        chunk_overlap=200,
+        length_function=len
     )
-    # split the text into chunks
+
+    # Split text into chunks
     chunks = text_splitter.split_text(text)
 
-    #load a model for generating embeddings from Hugging Face
-    embeddings_model  = HuggingFaceEmbeddings(model_name = 'sentence-transformers/all=MiniLM-L6-v2')
+    # Load Hugging Face embeddings model
+    embeddings_model = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
 
-    # Create a FAISS indec from the text chunks from the text chunks using the embeddings
-    knowledgeBase = FAISS.from_texts(chunks, embeddings_model )
+    # Create a FAISS index from the text chunks
+    knowledge_base = FAISS.from_texts(chunks, embeddings_model)
 
-    return knowledgeBase
+    return knowledge_base
 
-
-def summarizer(pdf):
-    # Function to summarize the content of a PDF File.
-
+###  <---------- Function: Summarizer ---------->
+def summarizer(pdf, api_key):
+    """
+    Summarizes the content of an uploaded PDF file into 3-5 sentences
+    using OpenAI's GPT model.
+    """
     if pdf is not None:
-        # If a PDF File is provided
-
-        # Read the PDF File
+        # Read the PDF file
         reader = PdfReader(pdf)
-        text = "" 
+        text = ""
 
-        # Extract text from each page of the PDF
+        # Extract text from each page
         for page in reader.pages:
             text += page.extract_text() or ""
 
         # Process the extracted text to create a knowledge base
-        knowledgeBase = process_text(text)
+        knowledge_base = process_text(text)
 
-        # Define the query fir summarization 
-        query = "Summarize the content of the uploaded PDF file in appropriately 3-5 sentences."
+        # Define the query for summarization
+        query = "Summarize the content of the uploaded PDF file in approximately 3-5 sentences."
 
         if query:
-            # Perform a similarity search in the knowledge base using the query
-            docs = knowledgeBase.similarity_search(query)
+            # Perform a similarity search based on the query
+            docs = knowledge_base.similarity_search(query)
 
-            # Specify the model to use for generating the summary
-            OpenAIModel = "gpt-3.5-turbo-16k"
-            llm = ChatOpenAI(model = OpenAIModel, temperature = 0.8)
+            # Specify the OpenAI model for generating the summary
+            openai_model_name = "gpt-3.5-turbo-16k"
+            llm = ChatOpenAI(model=openai_model_name, temperature=0.8, openai_api_key=api_key)
 
-            # load a question-answering chain with the specifies model
-            chain = load_qa_chain(llm, chain_type = 'stuff')
+            # Load a question-answering chain with the specified model
+            chain = load_qa_chain(llm, chain_type='stuff')
 
-            # with get_openai_callback() as cost:
-            #     # Run the chain to get a response and track the code
-            #     response = chain.run(input_documents = docs, question = query)
-            #     # Print the cost of the operation
-            #     print(cost)
-            #     # Return the generated summary
-            #     return response
+            ###  <---------- Exception Handling ---------->
+            try:
+                response = chain.run(input_documents=docs, question=query)
+                return response
 
-            # Run the chain to get a response and track the code
-            response = chain.run(input_documents = docs, question = query)
-            # Return the generated summary
-            return response 
+            except RateLimitError:
+                print("You have exceeded your OpenAI quota. Please check your billing details.")
+                return "Quota Exceeded: Please update your API key or billing."
+
+            except OpenAIError as e:
+                print(f"An OpenAI error occurred: {e}")
+                return "An error occurred with OpenAI."
+
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                return "An unexpected error occurred during summarization."
