@@ -1,14 +1,16 @@
-
-### <---------- Imports ---------->
+## <---------- Imports ---------->
+### Import necessary libraries and modules
 import streamlit as st
 from dotenv import load_dotenv
 import os
-from util import summarizer  # Import only what you need
+from util import summarizer  # Import only the required function
 
-### <---------- Load Environment Variables ---------->
+## <---------- Load Environment Variables ---------->
+### Load environment variables from .env file
 load_dotenv()
 
-### <---------- Main App Function ---------->
+## <---------- Main App Function ---------->
+### Streamlit app for uploading a PDF and generating its summary
 def main():
     # Initialize response
     response = ""
@@ -28,7 +30,7 @@ def main():
     submit = st.button("Generate Summary")
 
     # Access the API key from environment variables
-    api_key = os.getenv("OPENAI_API_KEY")  # Fixed the key name here
+    api_key = os.getenv("OPENAI_API_KEY")  # Ensure correct key name
     if api_key is None:
         st.error("API Key is missing. Please check your .env file and ensure OPENAI_API_KEY is set.")
         return
@@ -42,6 +44,7 @@ def main():
         st.subheader('📝 Summary of the PDF File')
         st.write(response)
 
-### <---------- Run the App ---------->
+## <---------- Run the App ---------->
+### Entry point to run the Streamlit app
 if __name__ == '__main__':
     main()
