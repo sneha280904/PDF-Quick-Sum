@@ -1,5 +1,7 @@
 # PDF-Quick-Sum 🚀📄
 
+Note: The source code for this project has been made private intentionally.
+
 Welcome to **PDF-Quick-Sum**, your go-to solution for quickly extracting and summarizing key information from PDF documents! Whether you're dealing with long research papers, manuals, or reports, this tool helps you get the most important content in no time. 🚀
 
 ## Features ✨
